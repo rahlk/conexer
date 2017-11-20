@@ -19,10 +19,16 @@ class ConfSpace:
         # This will used later to find nearest neighbor
         self.curr_conf_idx = None
 
-    def get_default_conf(self):
+    def get_default_conf(self, params):
         default_conf = {}
-        for p, vlist in self.param_values.iteritems():
-            default_conf[p] = vlist[0]
+        for p in params:
+            val = self.param_values.get(p)
+            if val is None:
+                print 'cannot find value for parameter:', p
+            else:
+                default_conf[p] = val[0].value
+        # for p, vlist in self.param_values.iteritems():
+        #     default_conf[p] = vlist[0]
         return default_conf
 
     def get_init_conf(self):

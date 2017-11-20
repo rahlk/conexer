@@ -45,3 +45,12 @@ print 'best iteration\t\t', best_iter
 print 'best configuration\t\t', conf
 print 'CPU performance\t\t', perf
 
+
+
+# total_saved = 0
+# for i in range(0, 100):
+#     total, single_save = explorer.coordinate_descent.test_feature_engineering()
+#     total_saved += single_save
+#     # print i, '===total:', total, '===single_save:', single_save
+
+# print 'total save:', total_saved/100.0

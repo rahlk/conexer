@@ -12,16 +12,7 @@ class Profiler:
     def __init__(self):
         self.itertime = 1
         # Here are some critical settings
-        # self.original_confs = self.parse_orig_confs()
-        # {
-        #     'fs.defaultFS': 'hdfs://hadoop-master:9000/',
-        #     'dfs.namenode.name.dir': 'file:///root/hdfs/namenode',
-        #     'dfs.datanode.data.dir': 'file:///root/hdfs/datanode',
-        #     'mapreduce.framework.name': 'yarn',
-        #     'yarn.nodemanager.aux-services': 'mapreduce_shuffle',
-        #     'yarn.nodemanager.aux-services.mapreduce_shuffle.class': 'org.apache.hadoop.mapred.ShuffleHandler',
-        #     'yarn.resourcemanager.hostname': 'hadoop-master'
-        # }
+        self.original_confs = self.parse_orig_confs()
         self.hadoop_conf_home = os.sep.join([str(cfg.hadoop_home), 'etc', 'hadoop'])
         self.avg_run_time = 2000
         self.hibench_output = ''
@@ -44,6 +35,7 @@ class Profiler:
                 if value is None:
                     value = ''
                 orig_conf[prop] = value
+        # print 'Chong: original configurations: ', orig_conf
         return orig_conf
 
     def start(self):
@@ -79,7 +71,7 @@ class Profiler:
         :param conf: a new configuration
         :return: performance
         '''
-        return itertime
+        # return itertime
         conf = in_conf.copy()
         self.itertime = itertime
         # prepare the system with new configurations
@@ -88,17 +80,25 @@ class Profiler:
         util.make_folder_ready(self.curr_genconf_folder)
         # now merge the original configurations with new ones
         for p, v in self.original_confs.iteritems():
-            if p not in conf:
+            # if p not in conf:
                 #      print 'new configuration tries to update the old one:', p
-                conf[p] = v
+            conf[p] = v
         # the default configuration
         # print itertime
-        if itertime == 0:
-            print conf
+        # if itertime == 0:
+        #     print conf
+        # print 'Chong: updated configs: ', conf
         confs = util.write_into_conf_file(conf, self.curr_genconf_folder)
-        if self.restart_hadoop_with_new_conf(confs) != 0:
-            print 'Error....prepare system failed.'
-            return sys.maxsize
+        
+        self.copy_new_conf(confs)
+        '''
+        No need to restart Hadoop. Only need to copy new configuration files to 
+        the configuration folder on Master node.
+        HiBench will use those configuration files when submit a new job. 
+        '''
+        # if self.restart_hadoop_with_new_conf(confs) != 0:
+        #     print 'Error....prepare system failed.'
+        #     return sys.maxsize
 
         # profile the system to get its performance
         # execute HiBench here
@@ -112,6 +112,11 @@ class Profiler:
             else:
                 # clear output of the last run
                 self.hibench_output = ''
+                # clear cpu_times
+                cpu_times = []
+                # if any one of these runs failed, that means this configuration is bad
+                # no need to test more, fail fast
+                break
         cpu_times = [t for t in cpu_times if t < sys.maxsize]
         average_cpu_time = sys.maxsize   # maximum time
         if len(cpu_times) > 0:
@@ -136,8 +141,8 @@ class Profiler:
         elapsed = end_time - start_time
         if success is True:
             self.avg_run_time = elapsed * 2
-        if cfg.platform == 'docker':
-            self.kill_useless_process()
+        # if cfg.platform == 'docker':
+        #     self.kill_useless_process()
         # print 'time to finish profile: ', self.avg_run_time
         return success, elapsed
 
@@ -178,14 +183,14 @@ class Profiler:
                 p.kill()
                 ret = False
             else:
-                print '***return is not 0 *** cmd:', cmd, 'return code:', return_code
-                print stdout
-                print '============='
-                print '============='
-                print stderr
+                # print '***return is not 0 *** cmd:', cmd, 'return code:', return_code
+                # print stdout
+                # print '============='
+                # print '============='
+                # print stderr
                 ret = False
         except Exception as e:
-            print 'Profiler: execute', cmd, 'failed. Exit msg =', e.message
+            # print 'Profiler: execute', cmd, 'failed. Exit msg =', e.message
             # print 'error message:', e.output
             # self.restore_hadoop_confs()
             ret = False
@@ -253,12 +258,18 @@ class Profiler:
         # stop hadoop first
         stop_all = []
         start_all = []
-        if cfg.platform == 'docker':
-            stop_all = [os.sep.join([cfg.hadoop_home, 'sbin', 'stop-all.sh'])]
-            start_all = [os.sep.join([cfg.hadoop_home, 'sbin', 'start-all.sh'])]
-        elif cfg.platform == 'aws':
+        # if cfg.platform == 'docker':
+        #     stop_all = [os.sep.join([cfg.hadoop_home, 'sbin', 'stop-all.sh'])]
+        #     start_all = [os.sep.join([cfg.hadoop_home, 'sbin', 'start-all.sh'])]
+        # elif cfg.platform == 'aws':
+        #     stop_all = ['sudo stop hadoop-yarn-resourcemanager']
+        #     start_all = ['sudo start hadoop-yarn-resourcemanager']            
+        if cfg.platform == 'aws':
             stop_all = ['sudo stop hadoop-yarn-resourcemanager']
             start_all = ['sudo start hadoop-yarn-resourcemanager']
+        else:
+            stop_all = [os.sep.join([cfg.hadoop_home, 'sbin', 'stop-all.sh'])]
+            start_all = [os.sep.join([cfg.hadoop_home, 'sbin', 'start-all.sh'])]
         if not self.run_multiple_cmds(stop_all):
             print 'Stop Hadoop failed, return...'
             return -1
@@ -286,12 +297,60 @@ class Profiler:
         self.run_cmd(cmd)
 
     def copy_new_conf(self, confs):
+        '''
+        Copy configuration files to slave nodes using ssh
+        1. get all slave nodes from hadoop configuation files "slaves"
+        2. construct command to copy configuration files
+
+        Actually, there is no need to copy files to slave nodes.
+        HiBench will use the configuration files on the master node to submit jobs.
+        '''
+        # slave_nodes = self.get_slave_nodes()
+
+        files_to_copy = ''
         for file_name in confs:
-            original_file = self.curr_genconf_folder + os.sep + file_name
-            target_folder = self.hadoop_conf_home
-            if cfg.platform == 'aws':
-                copy_cmd = ' '.join(['sudo cp', original_file, target_folder])
-            else:
-                copy_cmd = ' '.join(['cp', original_file, target_folder])
-            self.run_cmd(copy_cmd)
+            files_to_copy += self.curr_genconf_folder + os.sep + file_name + ' ' 
+        
+        # copy configuration files to master node
+        master_target_folder = self.hadoop_conf_home
+        if cfg.platform == 'aws':
+            copy_cmd = ' '.join(['sudo cp', files_to_copy, master_target_folder])
+        else:
+            copy_cmd = ' '.join(['cp', files_to_copy, master_target_folder])
+        self.run_cmd(copy_cmd)
+        # copy to slave nodes
+        # for snode in slave_nodes:
+        #     slave_target_folder = snode + ':' + self.hadoop_conf_home
+        #     # TODO: Chong: things are complicated when run this on AWS
+        #     # On AWS, we need "sudo" to save files into hadoop configuration folder
+        #     # we ignore that for now but fix it later
+        #     copy_cmd = ' '.join(['scp', files_to_copy, slave_target_folder])
+        #     self.run_cmd(copy_cmd)
+
+
+        # for file_name in confs:
+        #     original_file = self.curr_genconf_folder + os.sep + file_name
+        #     target_folder = self.hadoop_conf_home
+        #     copy_cmd = ''
+        #     # copy to master node
+        #     if cfg.platform == 'aws':
+        #         copy_cmd = ' '.join(['sudo cp', original_file, target_folder])
+        #     else:
+        #         copy_cmd = ' '.join(['cp', original_file, target_folder])
+        #     self.run_cmd(copy_cmd)
+            
+            
+        #     for snode in slave_nodes:
+        #         copy_cmd = ' '.join([scp ])
         return True
+
+    def get_slave_nodes(self):
+        slave_nodes = []
+        slaves_file = os.sep.join([self.hadoop_conf_home, 'slaves'])
+        with open(slaves_file, 'r') as fp:
+            for node in fp:
+                node = node.strip()
+                if node.startswith('#'):
+                    continue
+                slave_nodes.append(node)
+        return slave_nodes

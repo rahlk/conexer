@@ -11,6 +11,7 @@ import numpy as np
 class CoordinateDescent:
     def __init__(self):
         self.conf_space = ConfSpace()
+        self.semantics = self.conf_space.hadoop_semantics
         self.profiler = Profiler()
         # self.predictor = PerfPredict()
         self.profile_num = 1
@@ -18,6 +19,142 @@ class CoordinateDescent:
         self.K_iters_for_convergence_test = 5   # check the last 5 iterations
         self.perf_improvement_threshold = 0.02   # 2% of the improvement on the last cycle
         self.best_conf = None
+
+    def test_feature_engineering_gen_values(self, params):
+        param_values = dict()
+        for pname, p in params.iteritems():
+            data_type = p.data_type
+            values = []
+            if data_type is ConfDataType.boolean:
+                values.extend([True, False])
+            elif data_type is ConfDataType.integer:
+                values.extend([1,2,3,4,5])
+            elif data_type is ConfDataType.string:
+                values.extend(['hello', 'world', 'foo', 'bar', 'gar'])
+            elif data_type is ConfDataType.category:
+                values.extend(['default', 'three', 'values'])
+            elif data_type is ConfDataType.float:
+                values.extend([0.1, 0.2, 0.3, 0.4, 0.5])
+            param_values[p.name] = values
+        return param_values
+
+    def test_feature_engineering(self):
+        '''
+        This function tests the number of duplicates detected with feature
+        engineering.
+        Output: #dup_confs, #total_confs
+        0. get the child to parent dictionary
+        1. get all parameters
+        2. generate random value for them
+        3. generate an initial configuration
+        4. go through all parameters and values
+        5. count the number of duplicates
+            A. add 1 to the number of children parameters when parent is False
+        '''
+        total_save = 0
+        total = 0
+        all_parents = self.semantics.get_all_parents()
+        # all_parents = [p.lower() for p in all_parents]
+        all_params = util.parameters # here all_params is a dictionary of p_name-> a Parameter definition
+        # print '#All parameters:', len(all_params)
+        param_values = self.test_feature_engineering_gen_values(all_params)
+        child_parent = self.semantics.get_parent(all_params)
+        # for pp in all_parents:
+        #     children = self.semantics.get_children_by_parent(pp)
+        #     for c in children:
+        #         values = param_values[c.lower()]
+        #         if values is None:
+        #             print 'error in find values for parameter:', c
+        #         values_len = len(values)
+        #         total_save += values_len
+        init_conf = dict()
+        # for p, values in param_values.iteritems():
+        #     v = random.choice(values)
+        #     init_conf[p] = v
+        '''
+        1. select all parents
+        2. random set values for parents
+        3. iterate all parameters, add total
+            A. if child parameter, add total save
+        '''
+        for pp in all_parents:
+            ppvs = param_values[pp]
+            init_conf[pp] = random.choice(ppvs)
+        tmp_pp = len([p for p, v in init_conf.iteritems() if v is False])
+        # print 'True parents:', tmp_pp
+        all_directions = set(param_values.keys())
+        max_iter = 10000
+        index = 0
+        while index < max_iter:
+            if len(all_directions) == 0:
+                # print 'another round'
+                all_directions = set(param_values.keys())
+            next_d = random.choice(list(all_directions))
+            all_directions.discard(next_d)
+            next_d_values = param_values[next_d]
+            index += len(next_d_values)
+            total += len(next_d_values)
+            if next_d in child_parent and init_conf[child_parent[next_d]] is False:
+                total_save += len(next_d_values)
+        return total, total_save
+        # all_directions = set(param_values.keys())
+        # max_iter = 10000
+        # index = 0
+        # while index < max_iter:
+        #     if len(all_directions) == 0:
+        #         # print 'another round'
+        #         all_directions = set(param_values.keys())
+        #     next_d = random.choice(list(all_directions))
+        #     all_directions.discard(next_d)
+        #     next_d_values = param_values[next_d]
+        #     index += len(next_d_values)
+        #     total += len(next_d_values)
+        #     if next_d in child_parent and:
+        #         # children = self.semantics.get_children_by_parent(next_d)
+        #         # for c in children:
+        #         values = param_values[next_d]
+        #         total_save += len(values)
+        #         index += len(values)
+        #         all_directions.discard(c)
+
+        # init_conf = dict()
+        # for p, values in param_values.iteritems():
+        #     # total += len(values)
+        #     v = random.choice(values)
+        #     init_conf[p] = v
+        #     # values.remove(v)
+        # child_parent = self.semantics.get_parent(init_conf.keys())
+        # print 'length of child_parent:', len(child_parent)
+        # # check if values have been changed
+        # # fst_p, snd_p = param_values.keys()[0], param_values.keys()[1]
+        # # print 'values of parameter', fst_p, ':', param_values[fst_p]
+        # # print 'values of parameter', snd_p, ':', param_values[snd_p]
+        # # now we have an initial configuration, let's check the number of
+        # # configurations we could save
+        # # for p in init_conf:
+        # #     if p in child_parent and init_conf[child_parent[p].lower()] is False:
+        # #         total_save += 1
+        # # print 'total saved in initial conf:', total_save
+        # # count the left ones
+        # all_directions = set(param_values.keys())
+        # max_iter = 10000
+        # index = 0
+        # while index < max_iter:
+        #     index += 1
+        #     if len(all_directions) == 0:
+        #         # print 'another round'
+        #         all_directions = set(param_values.keys())
+        #     # here we optimize the next_direction, a single parameter
+        #     next_direction = random.choice(list(all_directions))
+        #     all_directions.discard(next_direction)
+        #     nd_values = param_values[next_direction]
+        #     for v in nd_values:
+        #         total += 1
+        #         init_conf[next_direction] = v
+        #         if next_direction in child_parent and child_parent[next_direction] is False:
+        #             total_save += 1
+
+        # print 'total:', total, 'total_saved', total_save
 
     def run(self):
         '''

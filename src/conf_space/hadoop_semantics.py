@@ -8,6 +8,12 @@ class HadoopSemantics:
             # this is a python dictionary
             self.hierarchy_structure = json.load(fp)
 
+    def get_all_parents(self):
+        return self.hierarchy_structure.keys()
+
+    def get_children_by_parent(self, parent):
+        return self.hierarchy_structure[parent]
+
     def get_partial_structure(self, params):
         '''
         The input is a list of parameters.
@@ -27,13 +33,13 @@ class HadoopSemantics:
             children_params = self.hierarchy_structure[p]
             children_in_inputs = list(set(params).intersection(set(children_params)))
             ret[p] = children_params
-        print 'HadoopSemantics==get_partial_structure, length of subset', len(ret)
+        # print 'HadoopSemantics==get_partial_structure, length of subset', len(ret)
         return ret
 
     def get_parent(self, params):
         '''
-        This function gets the parent of params.
-        If there is no parent, then the parent is None.
+        This function gets the parent of children in input params.
+        Ignore params who have no parent.
         '''
         ret = dict()
         for parent, children in self.hierarchy_structure.iteritems():
@@ -42,7 +48,7 @@ class HadoopSemantics:
                 ret[c] = parent
         # there are some parameters have no parent
         # this is totally OK
-        print 'HadoopSemantics=get_parent, length of c->p:', len(ret)
+        # print 'HadoopSemantics=get_parent, length of c->p:', len(ret)
         return ret
 
     def remove_dup_confs(self, confs):
