@@ -1,6 +1,5 @@
 dfs.namenode.handler.count
 dfs.replication
-io.compression.codecs
 io.file.buffer.size
 io.map.index.interval
 io.map.index.skip
@@ -8,7 +7,6 @@ io.seqfile.compress.blocksize
 io.seqfile.sorter.recordlimit
 ipc.maximum.data.length
 mapred.child.java.opts
-mapred.map.output.compression.type
 mapreduce.ifile.readahead
 mapreduce.ifile.readahead.bytes
 mapreduce.input.fileinputformat.split.maxsize
@@ -16,11 +14,9 @@ mapreduce.input.fileinputformat.split.minsize
 mapreduce.input.lineinputformat.linespermap
 mapreduce.job.counters.max
 mapreduce.job.jvm.numtasks
-mapreduce.job.maps
 mapreduce.job.max.split.locations
 mapreduce.job.reduce.slowstart.completedmaps
 mapreduce.job.reducer.unconditional-preempt.delay.sec
-mapreduce.job.reduces
 mapreduce.job.running.map.limit
 mapreduce.job.running.reduce.limit
 mapreduce.job.speculative.minimum-allowed-tasks
@@ -38,7 +34,6 @@ mapreduce.jobtracker.maxtasks.perjob
 mapreduce.jobtracker.taskcache.levels
 mapreduce.map.cpu.vcores
 mapreduce.map.java.opts
-mapreduce.map.maxattempts
 mapreduce.map.memory.mb
 mapreduce.map.output.compress
 mapreduce.map.output.compress.codec
@@ -53,7 +48,6 @@ mapreduce.reduce.cpu.vcores
 mapreduce.reduce.input.buffer.percent
 mapreduce.reduce.java.opts
 mapreduce.reduce.markreset.buffer.percent
-mapreduce.reduce.maxattempts
 mapreduce.reduce.memory.mb
 mapreduce.reduce.merge.inmem.threshold
 mapreduce.reduce.shuffle.input.buffer.percent
@@ -87,8 +81,6 @@ yarn.nodemanager.resource.cpu-vcores
 yarn.nodemanager.resource.memory-mb
 yarn.nodemanager.resource.percentage-physical-cpu-limit
 yarn.nodemanager.vmem-check-enabled
-yarn.nodemanager.windows-container.cpu-limit.enabled
-yarn.nodemanager.windows-container.memory-limit.enabled
 yarn.resourcemanager.admin.client.thread-count
 yarn.resourcemanager.amlauncher.thread-count
 yarn.resourcemanager.client.thread-count

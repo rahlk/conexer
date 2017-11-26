@@ -7,14 +7,15 @@ from sysconf import cfg
 from util import util
 import numpy as np
 import xml.etree.ElementTree as ElementTree
+from abs_classes import AbstractProfiler
 
-class Profiler:
+class HadoopProfiler(AbstractProfiler):
     def __init__(self):
         self.itertime = 1
         # Here are some critical settings
-        self.original_confs = self.parse_orig_confs()
+        # self.original_confs = self.parse_orig_confs() # Chong
         self.hadoop_conf_home = os.sep.join([str(cfg.hadoop_home), 'etc', 'hadoop'])
-        self.avg_run_time = 2000
+        self.avg_run_time = 2000    # seconds
         self.hibench_output = ''
 
     def parse_orig_confs(self):
@@ -65,6 +66,10 @@ class Profiler:
                 cmd = ' '.join(['cp', self.hadoop_conf_home + os.sep + conf_file, self.backup_folder])
             self.run_cmd(cmd)
 
+    def profile(self, conf):
+        print 'hadoop profiler called()'
+        return sys.maxsize
+
     def profile(self, itertime, in_conf):
         '''
         Profile the Hadoop system with the given configuration
@@ -89,12 +94,12 @@ class Profiler:
         #     print conf
         # print 'Chong: updated configs: ', conf
         confs = util.write_into_conf_file(conf, self.curr_genconf_folder)
-        
+
         self.copy_new_conf(confs)
         '''
-        No need to restart Hadoop. Only need to copy new configuration files to 
+        No need to restart Hadoop. Only need to copy new configuration files to
         the configuration folder on Master node.
-        HiBench will use those configuration files when submit a new job. 
+        HiBench will use those configuration files when submit a new job.
         '''
         # if self.restart_hadoop_with_new_conf(confs) != 0:
         #     print 'Error....prepare system failed.'
@@ -183,14 +188,14 @@ class Profiler:
                 p.kill()
                 ret = False
             else:
-                print '***return is not 0 *** cmd:', cmd, 'return code:', return_code
+                # print '***return is not 0 *** cmd:', cmd, 'return code:', return_code
                 # print stdout
                 # print '============='
                 # print '============='
                 # print stderr
                 ret = False
         except Exception as e:
-            print 'Profiler: execute', cmd, 'failed. Exit msg =', e.message
+            # print 'Profiler: execute', cmd, 'failed. Exit msg =', e.message
             # print 'error message:', e.output
             # self.restore_hadoop_confs()
             ret = False
@@ -263,7 +268,7 @@ class Profiler:
         #     start_all = [os.sep.join([cfg.hadoop_home, 'sbin', 'start-all.sh'])]
         # elif cfg.platform == 'aws':
         #     stop_all = ['sudo stop hadoop-yarn-resourcemanager']
-        #     start_all = ['sudo start hadoop-yarn-resourcemanager']            
+        #     start_all = ['sudo start hadoop-yarn-resourcemanager']
         if cfg.platform == 'aws':
             stop_all = ['sudo stop hadoop-yarn-resourcemanager']
             start_all = ['sudo start hadoop-yarn-resourcemanager']
@@ -309,8 +314,8 @@ class Profiler:
 
         files_to_copy = ''
         for file_name in confs:
-            files_to_copy += self.curr_genconf_folder + os.sep + file_name + ' ' 
-        
+            files_to_copy += self.curr_genconf_folder + os.sep + file_name + ' '
+
         # copy configuration files to master node
         master_target_folder = self.hadoop_conf_home
         if cfg.platform == 'aws':
@@ -338,8 +343,8 @@ class Profiler:
         #     else:
         #         copy_cmd = ' '.join(['cp', original_file, target_folder])
         #     self.run_cmd(copy_cmd)
-            
-            
+
+
         #     for snode in slave_nodes:
         #         copy_cmd = ' '.join([scp ])
         return True

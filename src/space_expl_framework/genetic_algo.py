@@ -1,35 +1,30 @@
-from conf_space import ConfSpace
-from conf_space import Parameter
-from conf_space import ConfDataType
 import os
 import sys
 import random
-from util import util
-from profiler import Profiler
-# from predict_model import PerfPredict
 import time
+# from util import util
+# from conf_space import Parameter
+# from conf_space import ParamDataType
+from abs_classes import AbstractAlgo
 
 
-class Genetic:
-    def __init__(self):
-        self.conf_space = ConfSpace()
+class Genetic(AbstractAlgo):
+    def __init__(self, conf, confspace, profiler):
+        self.conf_space = confspace(conf)
         # self.hadoop_semantics = self.conf_space.hadoop_semantics
-        self.profiler = Profiler()
-        # self.predictor = PerfPredict()
+        self.profiler = profiler(conf)
         # the maximum generations to evolve, as a stopping criterion
         self.max_generation = 10
         # the population size in each generation
         self.population_size = 100
         self.conf_to_profile = 10
         self.profile_num = 1
-        # how many configurations to predict with performance predictor before really runs the benchmark
-        # self.predict_max = 1000
         # the global performance improvement threshold, as a stopping criterion
         self.global_improvement = 0.3
         # discard a candidate if the performance improvement is less than this threshold
         self.local_improvement = 0.01
 
-    def run_vanilla_GA(self):
+    def run(self):
         '''
         1. get the default configuration and evaluate its performance
         2. get $population_size initial configurations and evaluate them
@@ -46,11 +41,11 @@ class Genetic:
         8. repeat step 2-7 until [meet $max_generation or achieve $improvement_threshold]
         :return:
         '''
-
+        print 'call genetic algorithm run()'
         # step 1
-        def_conf = self.conf_space.get_default_conf(util.important_params)
+        def_conf = self.conf_space.get_default_conf()
         print 'Default configuration:\n', def_conf
-        def_perf = self.profiler.profile(0, def_conf)
+        def_perf = self.profiler.profile(def_conf)
         print time.strftime("%Y-%d-%m %H:%M:%S"), 'Default benchmark done! Performance: ', def_perf
 
         best_conf = def_conf
@@ -91,7 +86,7 @@ class Genetic:
             if len(confs_to_evolve) < 2:
                 print '=== configurations to evolve less than 2 ==='
                 '''
-                TODO: is this correct
+                TODO: is this correct?
                 what should we do if ---
                    the current generation has no better configuration than the best one in last generation?
                 the current logic is to add parents into offspring (called elitism in some evolutionary algorithms),
@@ -130,57 +125,6 @@ class Genetic:
                 new_confs.append(confs[i])
                 new_perfs.append(p)
         return new_confs, new_perfs
-
-    def old_run(self):
-        '''
-        1. get a set of initial configurations (These are parent configurations)
-        2. predict/evaluate them for performance (or maybe predict them??)
-        3. Find N best predicted configurations to dynamically profile and find the best one
-        4. Take these N configurations to evolve (take half of the parameter and exchange and then update M)
-        5. get a set of offspring configurations to repeat step 1
-        6. Ends till G generations
-        :return:
-        '''
-        best_conf = None
-        best_perf = sys.maxsize
-
-        parent_confs = self.get_initial_confs()
-        generation_index = 1
-        best_generation = 1
-        # best_dynamic_profile_num = 1
-        while generation_index < self.max_generation:
-            # predict performance of parent configurations
-            pred_parent_perfs = self.predict_N_conf_perf(parent_confs)
-            print 'Generation:', generation_index, '\t=== prediction finished ==='
-            parent_confs, pred_parent_perfs = self.sort_confs_by_perfs(parent_confs, pred_parent_perfs)
-
-            # select N to dynamically benchmark to select the best one
-            if len(parent_confs) < self.conf_to_profile:
-                self.conf_to_profile = len(parent_confs)
-            confs_to_profile = random.sample(parent_confs, self.conf_to_profile)
-            real_perfs = self.profile_confs(confs_to_profile)
-            # best_dynamic_profile_num += len(confs_to_profile)
-            curr_best_conf, curr_best_perf = self.select_top_N_conf_by_perf(confs_to_profile, real_perfs, 1)
-            curr_best_conf, curr_best_perf = curr_best_conf[0], curr_best_perf[0]
-
-            print 'Best performance in this generation: ', curr_best_perf
-            if curr_best_perf <= best_perf:
-                best_perf = curr_best_perf
-                best_conf = curr_best_conf
-                best_generation = generation_index
-
-            # now parent configurations are sorted, we select half best ones to evolve
-            confs_to_evolve = random.sample(parent_confs, len(parent_confs)/2)
-            # add some profiled configurations to evolve
-            sorted_profiled_confs = self.sort_confs_by_perfs(confs_to_profile, real_perfs)
-            confs_to_evolve.extend(sorted_profiled_confs[:len(confs_to_profile)*3/2])
-            if len(confs_to_evolve) == 0:
-                break
-            # print 'generation', generation_index, 'evovling is finished'
-            # parent_confs = self.evolve(best_conf, confs_to_evolve)
-            parent_confs = self.evolve(curr_best_conf, confs_to_evolve)
-            generation_index += 1
-        return best_generation, best_conf, best_perf
 
     def create_offspring(self, parent1, parent2):
         offspring = parent1.copy()
@@ -238,9 +182,9 @@ class Genetic:
                 This is a new implementation. For numerical parameters, we select values from a range.
                 '''
                 v = ''
-                p_data_type = util.parameters.get(p.lower().strip()).data_type
-                if p_data_type in [ConfDataType.float, ConfDataType.integer]:
-                    if p_data_type is ConfDataType.float:
+                p_data_type = self.conf_space.param_datatype.get(p.lower().strip())
+                if p_data_type in ['float', 'integer']:
+                    if p_data_type == 'float':
                         values = [float(v) for v in values]
                         values = sorted(values)
                         v = random.uniform(values[0], values[-1])
@@ -263,9 +207,9 @@ class Genetic:
         # print 'Enter profile_confs'
         real_perfs = []
         for index, cnf in enumerate(confs):
-            perf = self.profiler.profile(self.profile_num, cnf)
-            print time.strftime("%Y-%d-%m %H:%M:%S"), self.profile_num, 'benchmark done! Performance: ', perf
+            perf = self.profiler.profile(cnf)
             self.profile_num += 1
+            print time.strftime("%Y-%d-%m %H:%M:%S"), index+1, 'benchmark done! Performance: ', perf
             real_perfs.append(perf)
         return  real_perfs
 
@@ -302,31 +246,12 @@ class Genetic:
         # Initial configurations do not need to consider the hierarchy structure.
         # So we do not need to do that here, only in the evolution steps.
         '''
-        #params_to_exploit = self.predictor.important_feature_from_model
-        params_to_exploit = util.important_params
-        # hierarchy_structure = self.hadoop_semantics.get_partial_structure(params_to_exploit)
-        # child_parent = slef.hadoop_semantics.get_parent(params_to_exploit)
-        # # here we get parameters that are not children nor parents
-        # normal_params = set(params_to_exploit).copy()
-        # normal_params.difference_update(set(hierarchy_structure.keys()))
-        # normal_params.difference_update(set(child_parent.keys()))
-        # normal_params = list(normal_params)
-        # params_to_exploit = random.sample(param_to_exploit, len(param_to_exploit)/2)
+        params_to_exploit = self.conf_space.get_all_params()
         conf_set = []
         for i in range(self.population_size):
             new_conf = {}
-            # # we need to set the value of parents first and then others
-            # # and then normal parameters
-            # for p in hierarchy_structure.keys():
-            #     values = self.conf_space.param_values.get(p.lower().strip())
-            #     random_v = random.choice(values)
-            #     new_conf[p] = random_v.value
-            # # then get values for children
-            # for c, p in child_parent.iteritems():
-            #     if p in new_conf and str(new_conf[p]) == 'false':
-            #         new_conf[c]
             for p in params_to_exploit:
-                values = self.conf_space.param_values.get(p.lower().strip())
+                values = self.conf_space.get_values_by_param(p.lower().strip())
                 random_v = random.choice(values)
                 new_conf[p] = random_v.value
             # print new_conf.values()

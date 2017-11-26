@@ -5,6 +5,7 @@
 #cp /usr/lib/hadoop/etc/hadoop/yarn-site.xml original_confs
 #cp /usr/lib/hadoop/etc/hadoop/hdfs-site.xml original_confs
 
+rm -rf gen_confs/*
 # first copy default configurations back to Hadoop
 cp hadoop_conf/* /localtmp/hadoop/hadoop-2.7.4/etc/hadoop
 
