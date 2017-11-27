@@ -191,7 +191,7 @@ class Genetic:
 
         mutate_params = random.sample(crossover_params, len(crossover_params)/2)
         for p in mutate_params:
-            values = self.conf_space.param_value[p]
+            values = self.conf_space.param_values[p]
             values = [v.value for v in values]
             '''
             This is a new implementation. For numerical parameters, we select values from a range.
