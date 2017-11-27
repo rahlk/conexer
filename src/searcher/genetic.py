@@ -197,9 +197,9 @@ class Genetic:
             This is a new implementation. For numerical parameters, we select values from a range.
             '''
             v = ''
-            p_data_type = self.conf_space.param_datatype.get(p.lower().strip())
-            if p_data_type in ['float', 'integer']:
-                if p_data_type == 'float':
+            p_data_type = util.parameters.get(p.lower().strip()).data_type
+            if p_data_type in [ConfDataType.float, ConfDataType.integer]:
+                if p_data_type is ConfDataType.float:
                     values = [float(v) for v in values]
                     values = sorted(values)
                     v = random.uniform(values[0], values[-1])
