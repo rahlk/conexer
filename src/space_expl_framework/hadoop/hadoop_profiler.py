@@ -7,7 +7,7 @@ from sysconf import cfg
 from util import util
 import numpy as np
 import xml.etree.ElementTree as ElementTree
-from abs_classes import AbstractProfiler
+from space_expl_framework.abs_classes import AbstractProfiler
 
 class HadoopProfiler(AbstractProfiler):
     def __init__(self):

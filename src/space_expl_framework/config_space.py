@@ -1,3 +1,5 @@
+from sysconf import cfg
+
 class Parameter:
     def __init__(self, pname, datatype, comp):
         self.name = pname
@@ -46,6 +48,12 @@ class ConfSpace:
         # for p, vlist in self.param_values.iteritems():
         #     default_conf[p] = vlist[0]
         return default_conf
+
+    def get_all_params(self):
+        return self.param_values.keys()
+
+    def get_values_by_param(self, p):
+        return self.param_values.get(p)
 
     def get_init_conf(self):
         # history data is sorted by performance

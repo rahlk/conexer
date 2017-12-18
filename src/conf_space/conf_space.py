@@ -11,7 +11,7 @@ class ConfSpace:
     '''
     def __init__(self):
         self.hadoop_semantics = HadoopSemantics()
-        # self.parameters = self.read_hadoop_params()
+        self.parameters = self.get_searchable_parameters()
         self.param_values = self.read_parameter_values()
         self.hist_data = HistData()
         self.perf_param = 'performance'
@@ -30,6 +30,14 @@ class ConfSpace:
         # for p, vlist in self.param_values.iteritems():
         #     default_conf[p] = vlist[0]
         return default_conf
+
+    def get_searchable_parameters(self):
+        csv_file = cfg.important_params
+        searchable_params = []
+        with open(csv_file, 'r') as fp:
+            for line in fp:
+                searchable_params.append(line.strip())
+        return searchable_params
 
     def get_init_conf(self):
         # history data is sorted by performance
@@ -60,6 +68,12 @@ class ConfSpace:
         print ret_idx
         return neighbor_conf
 
+    def get_all_params(self):
+        return self.parameters
+
+    def get_values_by_param(self, p):
+        return self.param_values.get(p)
+
     def read_parameter_values(self):
         '''
         Read the possible values of all parameters.
@@ -82,7 +96,8 @@ class ConfSpace:
                 if altV == 'nan' or altV.lower().strip() == '':
                     continue
                 all_values.append(Value(param, altV.strip()))
-            param_values[param.strip().lower()] = all_values
+            # param_values[param.strip().lower()] = all_values
+            param_values[param.strip()] = all_values
         # print '========== test parameter exists =============='
         # print 'yarn.resourcemanager.scheduler.class' in param_values
         # print 'yarn.resourcemanager.store.class' in param_values

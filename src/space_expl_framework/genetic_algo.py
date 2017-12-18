@@ -133,7 +133,7 @@ class Genetic(AbstractAlgo):
         for p in crossover_params:
             offspring[p] = parent2.get(p)
 
-        mutate_params = random.sample(crossover_params, len(crossover_params)/2)
+        mutate_params = random.sample(crossover_params, int(len(parent1)*0.06))
         for p in mutate_params:
             values = self.conf_space.param_value[p]
             values = [v.value for v in values]

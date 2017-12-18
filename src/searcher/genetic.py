@@ -6,8 +6,10 @@ import sys
 import random
 from util import util
 from profiler import Profiler
+from sysconf import cfg
 # from predict_model import PerfPredict
 import time
+from space_expl_framework import HadoopConfChecker
 
 
 class Genetic:
@@ -15,6 +17,9 @@ class Genetic:
         self.conf_space = ConfSpace()
         # self.hadoop_semantics = self.conf_space.hadoop_semantics
         self.profiler = Profiler()
+        self.curr_genconf_folder = cfg.gen_confs + os.sep + 'conf'
+        self.type_checker = HadoopConfChecker()
+        self.type_checker.set_all_param_value(self.conf_space.param_values)
         # self.predictor = PerfPredict()
         # the maximum generations to evolve, as a stopping criterion
         self.max_generation = 10
@@ -27,7 +32,8 @@ class Genetic:
         # the global performance improvement threshold, as a stopping criterion
         self.global_improvement = 0.3
         # discard a candidate if the performance improvement is less than this threshold
-        self.local_improvement = 0.01
+        self.local_improvement = 0.0    # 0.001
+        self.invalid_confs = []
 
     def run_vanilla_GA(self):
         '''
@@ -51,6 +57,9 @@ class Genetic:
         def_conf = self.conf_space.get_default_conf(util.important_params)
         print 'Default configuration:\n', def_conf
         def_perf = self.profiler.profile(0, def_conf)
+        if def_perf == sys.maxsize:
+            print 'profile default configuration failed, exit...'
+            sys.exit(-1)
         print time.strftime("%Y-%d-%m %H:%M:%S"), 'Default benchmark done! Performance: ', def_perf
 
         best_conf = def_conf
@@ -65,9 +74,13 @@ class Genetic:
         while self.generation_index <= self.max_generation or (best_perf*1.0-def_perf)/best_perf >= self.global_improvement:
             # profile all parent configurations
             real_perfs = self.profile_confs(parent_confs)
+            self.generation_index += 1
             # step 3: remove invalid configurations
             parent_confs, real_perfs = self.remove_invalid_confs_by_perf(parent_confs, real_perfs)
-
+            if len(parent_confs) == 0:
+                # no valid configurations, then we create another set of initial configurations
+                parent_confs = self.get_initial_confs()
+                continue
             # sort configurations by performance
             parent_confs, real_perfs = self.sort_confs_by_perfs(parent_confs, real_perfs)
 
@@ -88,10 +101,10 @@ class Genetic:
                     confs_to_evolve.append(parent_confs[i])
 
             last_gen_best_perf = curr_best_perf
-            if len(confs_to_evolve) < 2:
-                print '=== configurations to evolve less than 2 ==='
+            if len(confs_to_evolve) < max(self.population_size/10, 2):
+                print '=== configurations to evolve less than self.population_size/10 ==='
                 '''
-                TODO: is this correct
+                TODO: is this correct??
                 what should we do if ---
                    the current generation has no better configuration than the best one in last generation?
                 the current logic is to add parents into offspring (called elitism in some evolutionary algorithms),
@@ -106,13 +119,14 @@ class Genetic:
                 new_conf = self.create_offspring(parent1, parent2)
                 new_parents.append(new_conf)
             parent_confs = list(new_parents)
-            self.generation_index += 1
             # step 8: repeat
 
         if self.generation_index > self.max_generation:
             print '=== The GA algorithm ends because reach maximum generation ====='
         else:
             print '=== The GA algorithm ends because reach performance threshold ====='
+        print 'Invalid configurations:'
+        print self.invalid_confs
         return best_generation, best_conf, best_perf
 
     def converged(self):
@@ -189,7 +203,7 @@ class Genetic:
         for p in crossover_params:
             offspring[p] = parent2.get(p)
 
-        mutate_params = random.sample(crossover_params, len(crossover_params)/2)
+        mutate_params = random.sample(crossover_params, int(len(parent1)*0.06))
         for p in mutate_params:
             values = self.conf_space.param_values[p]
             values = [v.value for v in values]
@@ -263,11 +277,24 @@ class Genetic:
         # print 'Enter profile_confs'
         real_perfs = []
         for index, cnf in enumerate(confs):
+            # type checker for cnf
+            if not self.type_checker.check(self.profile_num, cnf):
+                print 'type-checking failed, config', str(self.profile_num)
+                self.invalid_confs.append(self.profile_num)
+                genconf_folder = self.curr_genconf_folder + str(self.profile_num)
+                util.make_folder_ready(genconf_folder)
+                tmp_conf = cnf.copy()
+                for p, v in self.profiler.original_confs.iteritems():
+                    tmp_conf[p] = v
+                util.write_into_conf_file(tmp_conf, genconf_folder)
+                self.profile_num += 1
+                real_perfs.append(sys.maxsize)
+                continue
             perf = self.profiler.profile(self.profile_num, cnf)
             print time.strftime("%Y-%d-%m %H:%M:%S"), self.profile_num, 'benchmark done! Performance: ', perf
             self.profile_num += 1
             real_perfs.append(perf)
-        return  real_perfs
+        return real_perfs
 
     def sort_confs_by_perfs(self, confs, perfs):
         sorted_perfs = sorted(perfs)
@@ -326,7 +353,7 @@ class Genetic:
             #     if p in new_conf and str(new_conf[p]) == 'false':
             #         new_conf[c]
             for p in params_to_exploit:
-                values = self.conf_space.param_values.get(p.lower().strip())
+                values = self.conf_space.param_values.get(p)
                 random_v = random.choice(values)
                 new_conf[p] = random_v.value
             # print new_conf.values()

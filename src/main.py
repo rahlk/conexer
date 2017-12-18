@@ -3,7 +3,9 @@ from searcher import Searcher
 import sys
 from profiler import Profiler
 from conf_space import ConfSpace
+from space_expl_framework import MCMC
 from util import util
+from sysconf import cfg
 
 """
 This is the main entry of this program.
@@ -36,15 +38,18 @@ Before starting the search algorithm, we evaluate performance of the default con
 # cpu_time = my_profiler.profile(0, def_conf)
 # print 'Default performance:', cpu_time
 # print 'iterations: ', N
-explorer = Searcher()
+# explorer = Searcher()
 # best_iter, conf, perf = explorer.hill_climbing.run(N)
 # best_iter, conf, perf = explorer.genetic.run()
 # best_iter, conf, perf = explorer.coordinate_descent.run()
-best_iter, conf, perf = explorer.genetic.run_vanilla_GA()
+# best_iter, conf, perf = explorer.genetic.run_vanilla_GA()
+
+# conf = Config('conf.ini')
+mcmc = MCMC(cfg, ConfSpace, Profiler)
+best_iter, conf, perf = mcmc.run()
 print 'best iteration\t\t', best_iter
 print 'best configuration\t\t', conf
 print 'CPU performance\t\t', perf
-
 
 
 # total_saved = 0

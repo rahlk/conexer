@@ -34,6 +34,7 @@ class Config:
         self.hadoop_home = config.get('paths', 'hadoop_home')
         self.hibench_home = config.get('paths', 'hibench_home')
         self.gen_confs = config.get('paths', 'conf_generated')
+        self.hadoop_checker = config.get('paths', 'hadoop_typechecker')
 
         base_dir = config.get('resource', 'base_dir')
         self.hist_data = base_dir + os.sep + \
@@ -64,6 +65,8 @@ class Config:
                                      config.get('resource', 'important_feature_from_model')
         self.hadoop_param_hierarchy = base_dir + os.sep + \
                                      config.get('resource', 'hadoop_param_hierarchy')
+        self.hadoop_realworld_type = base_dir + os.sep + \
+                                     config.get('resource', 'realworld_type')
 
         self.debug = config.get('debug', 'enable')
         self.debug_log = config.get('debug', 'log_file')

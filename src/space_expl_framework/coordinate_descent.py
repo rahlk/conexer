@@ -1,6 +1,6 @@
-from conf_space import ConfSpace
-from conf_space import Parameter
-from conf_space import ComponentType, ParamDataType
+from config_space import ConfSpace
+from config_space import Parameter
+from config_space import ComponentType, ParamDataType
 import os, sys
 import random
 from util import util
