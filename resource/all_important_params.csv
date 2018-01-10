@@ -3,7 +3,6 @@ dfs.replication
 io.file.buffer.size
 io.seqfile.compress.blocksize
 io.seqfile.sorter.recordlimit
-mapred.child.java.opts
 mapreduce.input.fileinputformat.split.maxsize
 mapreduce.input.fileinputformat.split.minsize
 mapreduce.job.jvm.numtasks
@@ -41,9 +40,5 @@ mapreduce.tasktracker.reduce.tasks.maximum
 yarn.app.mapreduce.am.command-opts
 yarn.app.mapreduce.am.resource.cpu-vcores
 yarn.app.mapreduce.am.resource.mb
-yarn.nodemanager.resource.percentage-physical-cpu-limit
-yarn.nodemanager.vmem-check-enabled
 yarn.resourcemanager.scheduler.class
 yarn.resourcemanager.store.class
-yarn.scheduler.maximum-allocation-mb
-yarn.scheduler.maximum-allocation-vcores
