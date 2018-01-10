@@ -89,12 +89,12 @@ class Profiler:
         #     print conf
         # print 'Chong: updated configs: ', conf
         confs = util.write_into_conf_file(conf, self.curr_genconf_folder)
-        
+
         self.copy_new_conf(confs)
         '''
-        No need to restart Hadoop. Only need to copy new configuration files to 
+        No need to restart Hadoop. Only need to copy new configuration files to
         the configuration folder on Master node.
-        HiBench will use those configuration files when submit a new job. 
+        HiBench will use those configuration files when submit a new job.
         '''
         # if self.restart_hadoop_with_new_conf(confs) != 0:
         #     print 'Error....prepare system failed.'
@@ -263,7 +263,7 @@ class Profiler:
         #     start_all = [os.sep.join([cfg.hadoop_home, 'sbin', 'start-all.sh'])]
         # elif cfg.platform == 'aws':
         #     stop_all = ['sudo stop hadoop-yarn-resourcemanager']
-        #     start_all = ['sudo start hadoop-yarn-resourcemanager']            
+        #     start_all = ['sudo start hadoop-yarn-resourcemanager']
         if cfg.platform == 'aws':
             stop_all = ['sudo stop hadoop-yarn-resourcemanager']
             start_all = ['sudo start hadoop-yarn-resourcemanager']
@@ -309,8 +309,8 @@ class Profiler:
 
         files_to_copy = ''
         for file_name in confs:
-            files_to_copy += self.curr_genconf_folder + os.sep + file_name + ' ' 
-        
+            files_to_copy += self.curr_genconf_folder + os.sep + file_name + ' '
+
         # copy configuration files to master node
         master_target_folder = self.hadoop_conf_home
         if cfg.platform == 'aws':
@@ -338,8 +338,8 @@ class Profiler:
         #     else:
         #         copy_cmd = ' '.join(['cp', original_file, target_folder])
         #     self.run_cmd(copy_cmd)
-            
-            
+
+
         #     for snode in slave_nodes:
         #         copy_cmd = ' '.join([scp ])
         return True

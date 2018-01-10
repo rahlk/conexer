@@ -61,17 +61,10 @@ parameters = read_hadoop_params()
 
 def get_belong_by_pname(name):
     name = name.strip().lower()
-    # if name == 'fs.defaultfs':
-    #     print 'Chong, found defaultfs'
     p = parameters.get(name.strip())
-    # if name == 'fs.defaultfs':
-    #     print 'Chong: p', p
     if p is None:
-        # print 'Chong: p none name: ', name
         return None
     conf_file = p.get_conf_file()
-    # if name == 'fs.defaultfs':
-    #     print 'Chong: conf_file', conf_file
     return conf_file
 
 

@@ -135,10 +135,9 @@ class HadoopConfChecker:
                 v = self.all_param_value.get(p.lower())[0].value
                 if v is None:
                     print 'not found default value for:', p
-                v = str(v)
             else:
                 v = conf[p]
-
+            v = str(v)
             if v == '' or v == 'None':
                 print 'checker: value is empty...'
             if p in self.option_type:
