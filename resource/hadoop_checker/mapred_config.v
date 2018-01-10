@@ -91,6 +91,13 @@ Record MapRedConfig := mk_mapred_config {
     Pos.gt (yarn_app_mapreduce_am_resource_cpu__vcores.value yarn_app_mapreduce_am_resource_cpu__vcores) (mapreduce_map_cpu_vcores.value mapreduce_map_cpu_vcores)
  ;uber_const4: ((mapreduce_job_ubertask_enable.value mapreduce_job_ubertask_enable) = true) -> 
     Pos.gt (yarn_app_mapreduce_am_resource_cpu__vcores.value yarn_app_mapreduce_am_resource_cpu__vcores) (mapreduce_reduce_cpu_vcores.value mapreduce_reduce_cpu_vcores)
+
+ (* Map and reduce task heap size should be less than mapreduce.map.memory.mb and mapreduce.reduce.memory.mb
+     *)
+ ;map_heap_lt_task_mem: Pos.lt (maximum_heap_size (mapreduce_map_java_opts.value mapreduce_map_java_opts))
+                               (mapreduce_map_memory_mb.value mapreduce_map_memory_mb)
+ ;reduce_heap_lt_task_mem: Pos.lt (maximum_heap_size (mapreduce_reduce_java_opts.value mapreduce_reduce_java_opts))
+                              (mapreduce_reduce_memory_mb.value mapreduce_reduce_memory_mb)
 }.
 
 
