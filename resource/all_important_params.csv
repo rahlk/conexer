@@ -1,44 +1,44 @@
-dfs.blocksize
-dfs.replication
-io.file.buffer.size
-io.seqfile.compress.blocksize
-io.seqfile.sorter.recordlimit
-mapreduce.input.fileinputformat.split.maxsize
-mapreduce.input.fileinputformat.split.minsize
-mapreduce.job.jvm.numtasks
-mapreduce.job.max.split.locations
-mapreduce.job.reduce.slowstart.completedmaps
-mapreduce.job.ubertask.enable
-mapreduce.job.ubertask.maxmaps
-mapreduce.job.ubertask.maxreduces
-mapreduce.map.cpu.vcores
-mapreduce.map.java.opts
-mapreduce.map.memory.mb
-mapreduce.map.output.compress
-mapreduce.map.output.compress.codec
-mapreduce.map.sort.spill.percent
-mapreduce.map.speculative
-mapreduce.output.fileoutputformat.compress
-mapreduce.output.fileoutputformat.compress.codec
-mapreduce.output.fileoutputformat.compress.type
-mapreduce.reduce.cpu.vcores
-mapreduce.reduce.input.buffer.percent
-mapreduce.reduce.java.opts
-mapreduce.reduce.memory.mb
-mapreduce.reduce.merge.inmem.threshold
-mapreduce.reduce.shuffle.input.buffer.percent
-mapreduce.reduce.shuffle.memory.limit.percent
-mapreduce.reduce.shuffle.merge.percent
-mapreduce.reduce.shuffle.parallelcopies
-mapreduce.shuffle.max.connections
-mapreduce.shuffle.max.threads
-mapreduce.task.io.sort.factor
-mapreduce.task.io.sort.mb
-mapreduce.tasktracker.http.threads
-mapreduce.tasktracker.map.tasks.maximum
-mapreduce.tasktracker.reduce.tasks.maximum
-yarn.app.mapreduce.am.command-opts
-yarn.app.mapreduce.am.resource.cpu-vcores
-yarn.app.mapreduce.am.resource.mb
-yarn.resourcemanager.scheduler.class
-yarn.resourcemanager.store.class
+dfs.blocksize, UniformDistStrategy
+dfs.replication, UniformDistStrategy
+io.file.buffer.size, UniformDistStrategy
+io.seqfile.compress.blocksize, UniformDistStrategy
+io.seqfile.sorter.recordlimit, UniformDistStrategy
+mapreduce.input.fileinputformat.split.maxsize, UniformDistStrategy
+mapreduce.input.fileinputformat.split.minsize, UniformDistStrategy
+mapreduce.job.jvm.numtasks, UniformDistStrategy
+mapreduce.job.max.split.locations, UniformDistStrategy
+mapreduce.job.reduce.slowstart.completedmaps, UniformDistStrategy
+mapreduce.job.ubertask.enable, ListSamplingStrategy
+mapreduce.job.ubertask.maxmaps, UniformDistStrategy
+mapreduce.job.ubertask.maxreduces, UniformDistStrategy
+mapreduce.map.cpu.vcores, UniformDistStrategy
+mapreduce.map.java.opts, UniformDistStrategy
+mapreduce.map.memory.mb, UniformDistStrategy
+mapreduce.map.output.compress, ListSamplingStrategy
+mapreduce.map.output.compress.codec, ListSamplingStrategy
+mapreduce.map.sort.spill.percent, UniformDistStrategy
+mapreduce.map.speculative, ListSamplingStrategy
+mapreduce.output.fileoutputformat.compress, ListSamplingStrategy
+mapreduce.output.fileoutputformat.compress.codec, ListSamplingStrategy
+mapreduce.output.fileoutputformat.compress.type, ListSamplingStrategy
+mapreduce.reduce.cpu.vcores, UniformDistStrategy
+mapreduce.reduce.input.buffer.percent, UniformDistStrategy
+mapreduce.reduce.java.opts, UniformDistStrategy
+mapreduce.reduce.memory.mb, UniformDistStrategy
+mapreduce.reduce.merge.inmem.threshold, UniformDistStrategy
+mapreduce.reduce.shuffle.input.buffer.percent, UniformDistStrategy
+mapreduce.reduce.shuffle.memory.limit.percent, UniformDistStrategy
+mapreduce.reduce.shuffle.merge.percent, UniformDistStrategy
+mapreduce.reduce.shuffle.parallelcopies, UniformDistStrategy
+mapreduce.shuffle.max.connections, UniformDistStrategy
+mapreduce.shuffle.max.threads, UniformDistStrategy
+mapreduce.task.io.sort.factor, UniformDistStrategy
+mapreduce.task.io.sort.mb, UniformDistStrategy
+mapreduce.tasktracker.http.threads, UniformDistStrategy
+mapreduce.tasktracker.map.tasks.maximum, UniformDistStrategy
+mapreduce.tasktracker.reduce.tasks.maximum, UniformDistStrategy
+yarn.app.mapreduce.am.command-opts, UniformDistStrategy
+yarn.app.mapreduce.am.resource.cpu-vcores, UniformDistStrategy
+yarn.app.mapreduce.am.resource.mb, UniformDistStrategy
+yarn.resourcemanager.scheduler.class, ListSamplingStrategy
+yarn.resourcemanager.store.class, ListSamplingStrategy

@@ -13,7 +13,7 @@ class HadoopProfiler(AbstractProfiler):
     def __init__(self):
         self.itertime = 1
         # Here are some critical settings
-        # self.original_confs = self.parse_orig_confs() # Chong
+        self.original_confs = self.parse_orig_confs() # Chong
         self.hadoop_conf_home = os.sep.join([str(cfg.hadoop_home), 'etc', 'hadoop'])
         self.avg_run_time = 2000    # seconds
         self.hibench_output = ''

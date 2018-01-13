@@ -18,6 +18,8 @@ class ConfSpace:
         # this will keep the index of current configuration
         # This will used later to find nearest neighbor
         self.curr_conf_idx = None
+        # initialize sampling strategies for parameters
+
 
     def get_default_conf(self, params):
         default_conf = {}
@@ -36,7 +38,8 @@ class ConfSpace:
         searchable_params = []
         with open(csv_file, 'r') as fp:
             for line in fp:
-                searchable_params.append(line.strip())
+                param = line.strip().split(',')[0].strip()
+                searchable_params.append(param)
         return searchable_params
 
     def get_init_conf(self):

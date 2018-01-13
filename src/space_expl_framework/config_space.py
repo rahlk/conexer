@@ -30,7 +30,7 @@ class ConfSpace:
     def __init__(self):
         # self.hadoop_semantics = HadoopSemantics()
         # self.parameters = self.read_hadoop_params()
-        self.param_values = self.read_parameter_values()
+        self.param_values = self.read_confspace_xls()
         # self.hist_data = HistData()
         self.perf_param = 'performance'
         # this will keep the index of current configuration

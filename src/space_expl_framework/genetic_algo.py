@@ -6,13 +6,15 @@ import time
 # from conf_space import Parameter
 # from conf_space import ParamDataType
 from abs_classes import AbstractAlgo
-
+from param_sampling_strategies import PSS
 
 class Genetic(AbstractAlgo):
     def __init__(self, conf, confspace, profiler):
         self.conf_space = confspace(conf)
         # self.hadoop_semantics = self.conf_space.hadoop_semantics
         self.profiler = profiler(conf)
+        param_values = self.conf_space.param_values
+        self.pss = PSS(param_values)
         # the maximum generations to evolve, as a stopping criterion
         self.max_generation = 10
         # the population size in each generation

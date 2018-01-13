@@ -43,6 +43,21 @@ def get_blongs_by_str(bstr):
     else:
         return ConfType.unknown
 
+def read_parameter_importance():
+    with open(cfg.important_params, 'r') as fp:
+        lines = fp.readlines()
+        lines = [l.strip() for l in lines if len(l) > 0]
+        params =  [l.split(',')[0] for l in lines]
+        params =  [p.strip() for p in params]
+        strategies =  [l.split(',')[1] for l in lines]
+        strategies = [s.strip() for s in strategies]
+        param_sampling_strategy = {}
+        for i, p in enumerate(params):
+            param_sampling_strategy[p] = strategies[i]
+        return params, param_sampling_strategy
+
+important_params, param_sampling_strategy = read_parameter_importance()
+
 
 def read_hadoop_params():
     parameters = {}
@@ -104,12 +119,6 @@ def create_xml_str(pv_dict):
     xmlstr = minidom.parseString(ET.tostring(root)).toprettyxml(indent="   ")
     return xmlstr
 
-def read_parameter_importance():
-    with open(cfg.important_params, 'r') as fp:
-        lines = fp.readlines()
-        return [l.strip() for l in lines]
-
-important_params = read_parameter_importance()
 
 def get_latest_performance():
     profile_res_file = cfg.hibench_home + '/report/wordcount/hadoop/bench.log'

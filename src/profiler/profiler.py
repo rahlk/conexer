@@ -141,8 +141,8 @@ class Profiler:
         elapsed = end_time - start_time
         if success is True:
             self.avg_run_time = elapsed * 2
-        # if cfg.platform == 'docker':
-        #     self.kill_useless_process()
+        if cfg.platform == 'docker':
+            self.kill_useless_process()
         # print 'time to finish profile: ', self.avg_run_time
         return success, elapsed
 

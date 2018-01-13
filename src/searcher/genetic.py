@@ -10,6 +10,7 @@ from sysconf import cfg
 # from predict_model import PerfPredict
 import time
 from space_expl_framework import HadoopConfChecker
+from space_expl_framework import PSS
 
 
 class Genetic:
@@ -17,6 +18,7 @@ class Genetic:
         self.conf_space = ConfSpace()
         # self.hadoop_semantics = self.conf_space.hadoop_semantics
         self.profiler = Profiler()
+        self.pss = PSS(self.conf_space.param_values)
         self.curr_genconf_folder = cfg.gen_confs + os.sep + 'conf'
         self.type_checker = HadoopConfChecker()
         self.type_checker.set_all_param_value(self.conf_space.param_values)
@@ -205,27 +207,38 @@ class Genetic:
 
         mutate_params = random.sample(crossover_params, int(len(parent1)*0.06))
         for p in mutate_params:
-            values = self.conf_space.param_values[p]
-            values = [v.value for v in values]
-            '''
-            This is a new implementation. For numerical parameters, we select values from a range.
-            '''
-            v = ''
-            p_data_type = util.parameters.get(p.lower().strip()).data_type
-            if p_data_type in [ConfDataType.float, ConfDataType.integer]:
-                if p_data_type is ConfDataType.float:
-                    values = [float(v) for v in values]
-                    values = sorted(values)
-                    v = random.uniform(values[0], values[-1])
-                    v = "{0:.2f}".format(v)
-                else:
-                    values = [int(v) for v in values]
-                    values = sorted(values)
-                    v = random.randint(values[0], values[-1])
-                    v = str(v)
-            else:
-                v = random.choice(values)
-            offspring[p] = v
+            strategy = self.pss.get_strategy()
+            if strategy is None:
+                print 'No strategy found for:', p
+                continue
+            next_val = strategy.next_value()
+            if next_val is None:
+                continue
+            next_val = str(next_val)
+            if 'java.opt' in p:
+                next_val = '-Xmx' + next_val + 'm'
+            offspring[p] = next_val
+            # values = self.conf_space.param_values[p]
+            # values = [v.value for v in values]
+            # '''
+            # This is a new implementation. For numerical parameters, we select values from a range.
+            # '''
+            # v = ''
+            # p_data_type = util.parameters.get(p.lower().strip()).data_type
+            # if p_data_type in [ConfDataType.float, ConfDataType.integer]:
+            #     if p_data_type is ConfDataType.float:
+            #         values = [float(v) for v in values]
+            #         values = sorted(values)
+            #         v = random.uniform(values[0], values[-1])
+            #         v = "{0:.2f}".format(v)
+            #     else:
+            #         values = [int(v) for v in values]
+            #         values = sorted(values)
+            #         v = random.randint(values[0], values[-1])
+            #         v = str(v)
+            # else:
+            #     v = random.choice(values)
+            # offspring[p] = v
         return offspring
 
     def evolve(self, best_conf, parents):
@@ -330,32 +343,28 @@ class Genetic:
         # So we do not need to do that here, only in the evolution steps.
         '''
         #params_to_exploit = self.predictor.important_feature_from_model
-        params_to_exploit = util.important_params
+        # params_to_exploit = util.important_params
+        params = self.conf_space.parameters
+        print 'length of params:', len(params)
         # hierarchy_structure = self.hadoop_semantics.get_partial_structure(params_to_exploit)
         # child_parent = slef.hadoop_semantics.get_parent(params_to_exploit)
-        # # here we get parameters that are not children nor parents
-        # normal_params = set(params_to_exploit).copy()
-        # normal_params.difference_update(set(hierarchy_structure.keys()))
-        # normal_params.difference_update(set(child_parent.keys()))
-        # normal_params = list(normal_params)
-        # params_to_exploit = random.sample(param_to_exploit, len(param_to_exploit)/2)
         conf_set = []
         for i in range(self.population_size):
             new_conf = {}
-            # # we need to set the value of parents first and then others
-            # # and then normal parameters
-            # for p in hierarchy_structure.keys():
-            #     values = self.conf_space.param_values.get(p.lower().strip())
-            #     random_v = random.choice(values)
-            #     new_conf[p] = random_v.value
-            # # then get values for children
-            # for c, p in child_parent.iteritems():
-            #     if p in new_conf and str(new_conf[p]) == 'false':
-            #         new_conf[c]
-            for p in params_to_exploit:
-                values = self.conf_space.param_values.get(p)
-                random_v = random.choice(values)
-                new_conf[p] = random_v.value
+            for p in params:
+                strategy = self.pss.get_strategy(p)
+                if strategy is None:
+                    continue
+                val = strategy.next_value()
+                if val is None:
+                    print 'no value found for:', p
+                val = str(val)
+                if 'java.opt' in p:
+                    val = '-Xmx' + val + 'm'
+                new_conf[p] = val
+                # values = self.conf_space.param_values.get(p)
+                # random_v = random.choice(values)
+                # new_conf[p] = random_v.value
             # print new_conf.values()
             conf_set.append(new_conf)
         # conf_set = self.hadoop_semantics.remove_dup_confs(conf_set)
