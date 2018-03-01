@@ -42,34 +42,34 @@ class ConfSpace:
                 searchable_params.append(param)
         return searchable_params
 
-    def get_init_conf(self):
-        # history data is sorted by performance
-        # so the first row is the conf with best performance in history
-        # init_conf = self.hist_data.hist_data.iloc[0]
-        # conf_params = self.hist_data.hist_data.columns.tolist()
-        # selected_cols = list(set(self.parameters).intersection(conf_params))
-        # return init_conf[selected_cols]
-        first_idx = self.hist_data.hist_data.index[0]
-        first_conf = self.hist_data.hist_data.loc[first_idx]
-        self.curr_conf_idx = first_idx
-        return first_conf.to_dict()
+    # def get_init_conf(self):
+    #     # history data is sorted by performance
+    #     # so the first row is the conf with best performance in history
+    #     # init_conf = self.hist_data.hist_data.iloc[0]
+    #     # conf_params = self.hist_data.hist_data.columns.tolist()
+    #     # selected_cols = list(set(self.parameters).intersection(conf_params))
+    #     # return init_conf[selected_cols]
+    #     first_idx = self.hist_data.hist_data.index[0]
+    #     first_conf = self.hist_data.hist_data.loc[first_idx]
+    #     self.curr_conf_idx = first_idx
+    #     return first_conf.to_dict()
 
-    def get_confdict_from_hist_record(self, record):
-        # the input is a serious
-        # return a dictionary
-        return record.to_dict()
+    # def get_confdict_from_hist_record(self, record):
+    #     # the input is a serious
+    #     # return a dictionary
+    #     return record.to_dict()
 
-    def get_next_conf_by_dist(self):
-        '''
-        This function returns a neighbor configuration by parameter vector distance.
-        '''
-        ret_idx, neighbor_conf = self.hist_data.get_next_neighbor_by_dist(self.curr_conf_idx)
-        if ret_idx is None:
-            print 'No further neighbor. Exit...'
-            return None
-        self.curr_conf_idx = ret_idx
-        print ret_idx
-        return neighbor_conf
+    # def get_next_conf_by_dist(self):
+    #     '''
+    #     This function returns a neighbor configuration by parameter vector distance.
+    #     '''
+    #     ret_idx, neighbor_conf = self.hist_data.get_next_neighbor_by_dist(self.curr_conf_idx)
+    #     if ret_idx is None:
+    #         print 'No further neighbor. Exit...'
+    #         return None
+    #     self.curr_conf_idx = ret_idx
+    #     print ret_idx
+    #     return neighbor_conf
 
     def get_all_params(self):
         return self.parameters

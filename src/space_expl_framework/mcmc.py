@@ -24,17 +24,20 @@ class MCMC(AbstractAlgo):
         # self.hadoop_semantics = self.conf_space.hadoop_semantics
         self.profiler = profiler()
         self.type_checker = HadoopConfChecker()
+        self.type_checker.set_all_param_value(self.conf_space.param_values)
+        self.curr_genconf_folder = conf.gen_confs + os.sep + 'conf'
         # the maximum generations to evolve, as a stopping criterion
         # self.max_generation = 10
         # the population size in each generation
         self.population_size = 200
         # self.conf_to_profile = 10
-        self.profile_num = 1
+        self.profile_num = 0
         # the global performance improvement threshold, as a stopping criterion
-        self.global_improvement = 0.3
+        self.global_improvement = 0.8
         # discard a candidate if the performance improvement is less than this threshold
         # self.local_improvement = 0.01     # MCMC decides which configuration enter into parent set
         self.max_iter = 6000    # the maximum number of iteration for MCMC
+        self.invalid_confs = []
 
     def run(self):
         '''
@@ -44,16 +47,15 @@ class MCMC(AbstractAlgo):
         default_conf = self.conf_space.get_default_conf(params)
         print 'default configuration:'
         print default_conf
-        default_perf = self.profiler.profile(self.profile_num, default_conf)
+        default_perf = self.profile_conf(default_conf)
         if default_perf == sys.maxsize:
             print 'profile default configuration failed, exit...'
             sys.exit(-1)
-        print 'Default performance. Profile num:', self.profile_num, '=== Performance:', default_perf
+        print 'Default performance. Profile num:', self.profile_num - 1, '=== Performance:', default_perf
         best_conf = default_conf.copy()
         best_perf = default_perf
         reference_point = best_perf
-        best_profile_num = self.profile_num
-        self.profile_num += 1
+        best_profile_num = self.profile_num - 1
         conf_set = self.get_initial_confs()
         evolve_confs = []
         parent_confs = []
@@ -64,23 +66,22 @@ class MCMC(AbstractAlgo):
                 conf_index = random.randint(0, len(conf_set)-1)
                 conf_to_profile = conf_set[conf_index]
                 del conf_set[conf_index]
-                curr_perf = self.profiler.profile(self.profile_num, conf_to_profile)
+                curr_perf = self.profile_conf(conf_to_profile)
                 if curr_perf == sys.maxsize:
                     continue
-                print 'Profile_num:', self.profile_num, '====Performance:', curr_perf
+                
                 if curr_perf <= best_perf:
-                    print 'Better performance found. Profile num:', self.profile_num, '=== Performance:', curr_perf
+                    print 'Better performance found. Profile num:', self.profile_num - 1, '=== Performance:', curr_perf
                     # update best configuration and performance
                     best_perf = curr_perf
                     best_conf = conf_to_profile
-                    best_profile_num = self.profile_num
+                    best_profile_num = self.profile_num - 1
                 # reference point is the best on in last generation
                 to_accept = self.to_accept(curr_perf, reference_point)
                 if to_accept:
                     # add this configuration to candidate set
                     evolve_confs.append(conf_to_profile)
                     print 'Accept it!!!'
-                self.profile_num += 1
                 if (default_perf - best_perf)*1.0/default_perf >= self.global_improvement:
                     print 'converged since achieved global performance improvement'
                     break
@@ -102,7 +103,7 @@ class MCMC(AbstractAlgo):
                         evolve_confs.append(tmp_conf)
                 conf_set = self.mutate(best_conf, evolve_confs)
                 evolve_confs = []
-
+        print 'invalid confs:', self.invalid_confs
         print 'Best performance:', best_perf, '==== best iteration:', best_profile_num
         return best_profile_num, best_conf, best_perf
 
@@ -204,3 +205,23 @@ class MCMC(AbstractAlgo):
             random_v = random.choice(values)
             conf[p] = random_v.value
         return conf
+
+    def profile_conf(self, conf):
+        # print 'Enter profile_confs'
+        perf = sys.maxsize
+        # type checker for cnf
+        if not self.type_checker.check(self.profile_num, conf):
+            print 'type-checking failed, config', str(self.profile_num)
+            self.invalid_confs.append(self.profile_num)
+            genconf_folder = self.curr_genconf_folder + str(self.profile_num)
+            util.make_folder_ready(genconf_folder)
+            tmp_conf = conf.copy()
+            for p, v in self.profiler.original_confs.iteritems():
+                tmp_conf[p] = v
+            util.write_into_conf_file(tmp_conf, genconf_folder)
+            self.profile_num += 1
+            return perf
+        perf = self.profiler.profile(self.profile_num, conf)
+        print time.strftime("%Y-%d-%m %H:%M:%S"), self.profile_num, 'benchmark done! Performance: ', perf
+        self.profile_num += 1
+        return perf

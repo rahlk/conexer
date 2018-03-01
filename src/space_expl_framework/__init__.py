@@ -6,3 +6,4 @@ from framework_conf import Config
 from hadoop import *
 from sampling_strategies import *
 from param_sampling_strategies import PSS
+from config_space import ConfSpace
