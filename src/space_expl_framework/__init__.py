@@ -7,3 +7,4 @@ from hadoop import *
 from sampling_strategies import *
 from param_sampling_strategies import PSS
 from config_space import ConfSpace
+from random_algo import RandomExplore
