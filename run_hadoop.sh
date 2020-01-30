@@ -7,7 +7,7 @@
 
 rm -rf gen_confs/*
 # first copy default configurations back to Hadoop
-cp hadoop_conf/* /localtmp/hadoop/hadoop-2.7.4/etc/hadoop
+cp hadoop_conf/* $HADOOP_HOME/etc/hadoop
 
 # then restart hadoop
 # stop-all.sh
