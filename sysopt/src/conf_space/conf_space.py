@@ -9,6 +9,7 @@ class ConfSpace:
     '''
     This class contains all parameters and their values.
     '''
+
     def __init__(self):
         self.hadoop_semantics = HadoopSemantics()
         self.parameters = self.get_searchable_parameters()
@@ -19,7 +20,6 @@ class ConfSpace:
         # This will used later to find nearest neighbor
         self.curr_conf_idx = None
         # initialize sampling strategies for parameters
-
 
     def get_default_conf(self, params):
         default_conf = {}
@@ -82,6 +82,7 @@ class ConfSpace:
         Read the possible values of all parameters.
         '''
         param_df = pd.read_excel(cfg.p_values, header=0)
+        param_df = param_df.dropna(axis=0, how="all")
         params = param_df['Parameters']
         default_values = param_df['Default']
         alternatives = param_df['Alternative']

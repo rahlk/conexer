@@ -10,10 +10,13 @@ from sysconf import cfg
 from util import util
 import os
 import subprocess
+from pdb import set_trace
+
 
 class HadoopConfChecker:
     def __init__(self):
-        self.parameters = util.parameters   # param => Parameter(pname, datatype, belongs)
+        # param => Parameter(pname, datatype, belongs)
+        self.parameters = util.parameters
         self.rtype_file = cfg.hadoop_realworld_type
         self.read_rtype(self.rtype_file)
         # create a folder to keep Coq configurations
@@ -68,7 +71,6 @@ class HadoopConfChecker:
             return 'JavaOpts'
             # return 'string'
         return input_type
-
 
     def get_native_type(self, machine_type):
         # if 'opt' in machine_type.lower():
@@ -126,12 +128,12 @@ class HadoopConfChecker:
         modules = list(set(self.param_module.values()))
         params = self.param_valus.keys()
         conf_ps = conf.keys()
-        module_params = {'core':[], 'hdfs': [], 'mapred': [], 'yarn': []}
+        module_params = {'core': [], 'hdfs': [], 'mapred': [], 'yarn': []}
         for p in params:
             m = self.param_module[p].lower().strip()
             v = ''
             if p not in conf_ps:
-                #print 'parameter not in conf:', p
+                # print 'parameter not in conf:', p
                 v = self.all_param_value.get(p.lower())[0].value
                 if v is None:
                     print 'not found default value for:', p
@@ -147,9 +149,9 @@ class HadoopConfChecker:
                 else:
                     v = 'None'
             elif self.param_ntype[p] == 'string':
-                v = '"' +v+ '"'
+                v = '"' + v + '"'
             elif self.param_ntype[p] == 'R':
-                v = '(' + str(float(v)*100).split('.')[0] +'/100)%R'
+                v = '(' + str(float(v) * 100).split('.')[0] + '/100)%R'
             elif self.param_ntype[p] == 'N':
                 v = v + '%N'
             elif self.param_ntype[p] == 'positive':
@@ -176,7 +178,7 @@ class HadoopConfChecker:
             sorted_pvs = sorted(pvs, key=lambda x: x[0])
             module_str = ''
             for p, v in sorted_pvs:
-                module_str += '    (' + p + '.mk false '+ v + ' _ )\n'
+                module_str += '    (' + p + '.mk false ' + v + ' _ )\n'
 
             if module == 'core':
                 core_module += module_str
@@ -196,7 +198,10 @@ class HadoopConfChecker:
     Defined.
 
     '''
-        mapred_module += '''      _
+        mapred_module += '''      
+        _
+        _
+        _
         _
         _
         _
@@ -212,7 +217,8 @@ class HadoopConfChecker:
     Defined.
     '''
 
-        file_content += '\n'.join([core_module, hdfs_module, mapred_module, yarn_module])
+        file_content += '\n'.join([core_module,
+                                   hdfs_module, mapred_module, yarn_module])
         file_content += '''
     Definition a_hadoop_config: HadoopConfig.
     Proof.
@@ -231,7 +237,8 @@ class HadoopConfChecker:
 
     def run_shell_cmd(self, cmd):
         FNULL = open(os.devnull, 'w')
-        p = subprocess.Popen(cmd.split(' '), stdout=FNULL, stderr=FNULL)
+        p = subprocess.Popen(cmd, stdout=subprocess.PIPE,
+                             stderr=FNULL, shell=True)
         p.wait()
         ret_code = p.returncode
         FNULL.close()

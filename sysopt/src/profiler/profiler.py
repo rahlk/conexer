@@ -229,7 +229,7 @@ class Profiler:
         killall_ssh = 'killall ssh'
         self.run_cmd(killall_ssh)
         # killall python processs on slave nodes
-        slave_nodes = ['hadoop-slave1', 'hadoop-slave2', 'hadoop-slave3', 'hadoop-slave4']
+        slave_nodes = ['hadoop-worker1', 'hadoop-worker2', 'hadoop-worker3', 'hadoop-worker4']
         for s in slave_nodes:
             kill_python = 'ssh ' + s + ' \"ps -ef|grep \'socket.SOCK\'|awk \'{ print \$2 }\' |xargs kill\"'
             # kill_python = 'ssh ' + s + ' killall python'
