@@ -7,7 +7,7 @@
 
 rm -rf gen_confs/*
 # first copy default configurations back to Hadoop
-cp hadoop_conf/* $HADOOP_HOME/etc/hadoop
+cp hadoop_conf/* /usr/local/hadoop-2.7.4/etc/hadoop
 
 # then restart hadoop
 # stop-all.sh
@@ -25,7 +25,7 @@ cp hadoop_conf/* $HADOOP_HOME/etc/hadoop
 
 
 # then prepare input data
-../HiBench/bin/run_all.sh > /dev/null
+/root/HiBench/bin/run_all.sh > /dev/null
 
 #sudo cp hadoop_conf/* /usr/lib/hadoop/etc/hadoop
 # then copy default configurations back to Hadoop
