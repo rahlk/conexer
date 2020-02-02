@@ -25,7 +25,7 @@ cp hadoop_conf/* /usr/local/hadoop-2.7.4/etc/hadoop
 
 
 # then prepare input data
-/root/HiBench/bin/run_all.sh > /dev/null
+# /root/HiBench/bin/run_all.sh > /dev/null
 
 #sudo cp hadoop_conf/* /usr/lib/hadoop/etc/hadoop
 # then copy default configurations back to Hadoop

@@ -10,7 +10,7 @@
    </property>
    <property>
       <name>yarn.resourcemanager.store.class</name>
-      <value>org.apache.hadoop.yarn.server.resourcemanager.recovery.FileSystemRMStateStore</value>
+      <value>org.apache.hadoop.yarn.server.resourcemanager.recovery.ZKRMStateStore</value>
    </property>
    <property>
       <name>yarn.nodemanager.vmem-check-enabled</name>
@@ -18,7 +18,7 @@
    </property>
    <property>
       <name>yarn.nodemanager.vmem-pmem-ratio</name>
-      <value>2.1</value>
+      <value>1</value>
    </property>
    <property>
       <name>yarn.resourcemanager.scheduler.class</name>

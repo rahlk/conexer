@@ -42,3 +42,5 @@ yarn.app.mapreduce.am.resource.cpu-vcores, UniformDistStrategy
 yarn.app.mapreduce.am.resource.mb, UniformDistStrategy
 yarn.resourcemanager.scheduler.class, ListSamplingStrategy
 yarn.resourcemanager.store.class, ListSamplingStrategy
+yarn.nodemanager.vmem-check-enabled, ListSamplingStrategy
+yarn.nodemanager.vmem-pmem-ratio, ListSamplingStrategy

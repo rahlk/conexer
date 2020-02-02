@@ -172,11 +172,15 @@ class Profiler:
             # Using PIPE here could cause a deadlock problem. When there is too much content in stdout or stderr,
             # the PIPE will be full and process will hang
             cmd = cmd.split(' ')
-            p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=os.devnull)
-            set_trace()
-            wait_result = self.wait_timeout(p, self.avg_run_time)
-            stdout, stderr = p.communicate()
-            return_code = p.returncode
+            devnull = open(os.devnull, 'w')
+            # set_trace()
+            subpro = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            # set_trace()
+            # wait_result = 0
+            wait_result = self.wait_timeout(subpro, self.avg_run_time)
+            stdout, stderr = subpro.communicate()
+            return_code = subpro.returncode
+            devnull.close()
             if wait_result == 0 or return_code == 0:
                 self.hibench_output = self.stderr
             elif wait_result == -100:
@@ -187,10 +191,10 @@ class Profiler:
                 ret = False
             else:
                 print '***return is not 0 *** cmd:', cmd, 'return code:', return_code
-                # print stdout
-                # print '============='
-                # print '============='
-                # print stderr
+                print stdout
+                print '============='
+                print '============='
+                print stderr
                 ret = False
         except Exception as e:
             print 'Profiler: execute', cmd, 'failed. Exit msg =', e.message

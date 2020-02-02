@@ -2,7 +2,7 @@
 <configuration>
    <property>
       <name>mapreduce.job.max.split.locations</name>
-      <value>10</value>
+      <value>14</value>
    </property>
    <property>
       <name>mapreduce.reduce.input.buffer.percent</name>
@@ -10,7 +10,7 @@
    </property>
    <property>
       <name>mapreduce.output.fileoutputformat.compress</name>
-      <value>false</value>
+      <value>true</value>
    </property>
    <property>
       <name>mapreduce.framework.name</name>
@@ -18,11 +18,11 @@
    </property>
    <property>
       <name>mapreduce.map.speculative</name>
-      <value>true</value>
+      <value>false</value>
    </property>
    <property>
       <name>mapreduce.reduce.shuffle.merge.percent</name>
-      <value>0.66</value>
+      <value>0.8</value>
    </property>
    <property>
       <name>mapreduce.job.jvm.numtasks</name>
@@ -30,7 +30,7 @@
    </property>
    <property>
       <name>yarn.app.mapreduce.am.resource.mb</name>
-      <value>2880</value>
+      <value>3200</value>
    </property>
    <property>
       <name>mapreduce.input.fileinputformat.split.minsize</name>
@@ -38,11 +38,11 @@
    </property>
    <property>
       <name>mapreduce.map.java.opts</name>
-      <value>-Xmx819m</value>
+      <value>-Xmx737m</value>
    </property>
    <property>
       <name>mapreduce.job.ubertask.enable</name>
-      <value>false</value>
+      <value>true</value>
    </property>
    <property>
       <name>mapreduce.application.classpath</name>
@@ -50,7 +50,7 @@
    </property>
    <property>
       <name>mapreduce.shuffle.max.connections</name>
-      <value>0</value>
+      <value>6</value>
    </property>
    <property>
       <name>mapreduce.job.reduce.slowstart.completedmaps</name>
@@ -58,7 +58,7 @@
    </property>
    <property>
       <name>mapreduce.reduce.shuffle.memory.limit.percent</name>
-      <value>0.25</value>
+      <value>0.35</value>
    </property>
    <property>
       <name>mapreduce.output.fileoutputformat.compress.type</name>
@@ -66,23 +66,23 @@
    </property>
    <property>
       <name>mapreduce.reduce.java.opts</name>
-      <value>-Xmx1640m</value>
+      <value>-Xmx1312m</value>
    </property>
    <property>
       <name>mapreduce.reduce.merge.inmem.threshold</name>
-      <value>1000</value>
+      <value>1100</value>
    </property>
    <property>
       <name>mapreduce.map.sort.spill.percent</name>
-      <value>0.80</value>
+      <value>0.88</value>
    </property>
    <property>
       <name>mapreduce.map.memory.mb</name>
-      <value>4096</value>
+      <value>6144</value>
    </property>
    <property>
       <name>mapreduce.task.io.sort.factor</name>
-      <value>10</value>
+      <value>14</value>
    </property>
    <property>
       <name>mapreduce.reduce.memory.mb</name>
@@ -90,11 +90,11 @@
    </property>
    <property>
       <name>mapreduce.tasktracker.map.tasks.maximum</name>
-      <value>2</value>
+      <value>5</value>
    </property>
    <property>
       <name>mapreduce.output.fileoutputformat.compress.codec</name>
-      <value>org.apache.hadoop.io.compress.DefaultCodec</value>
+      <value>org.apache.hadoop.io.compress.BZip2Codec</value>
    </property>
    <property>
       <name>mapreduce.reduce.cpu.vcores</name>
@@ -102,7 +102,7 @@
    </property>
    <property>
       <name>mapreduce.map.cpu.vcores</name>
-      <value>1</value>
+      <value>3</value>
    </property>
    <property>
       <name>mapreduce.job.ubertask.maxreduces</name>
@@ -110,15 +110,15 @@
    </property>
    <property>
       <name>mapreduce.tasktracker.reduce.tasks.maximum</name>
-      <value>2</value>
+      <value>3</value>
    </property>
    <property>
       <name>mapreduce.map.output.compress.codec</name>
-      <value>org.apache.hadoop.io.compress.DefaultCodec</value>
+      <value>org.apache.hadoop.io.compress.GzipCodec</value>
    </property>
    <property>
       <name>mapreduce.shuffle.max.threads</name>
-      <value>0</value>
+      <value>2</value>
    </property>
    <property>
       <name>mapreduce.map.output.compress</name>
@@ -126,27 +126,27 @@
    </property>
    <property>
       <name>mapreduce.reduce.shuffle.parallelcopies</name>
-      <value>5</value>
+      <value>3</value>
    </property>
    <property>
       <name>mapreduce.reduce.shuffle.input.buffer.percent</name>
-      <value>0.70</value>
+      <value>0.90</value>
    </property>
    <property>
       <name>mapreduce.job.ubertask.maxmaps</name>
-      <value>9</value>
+      <value>13</value>
    </property>
    <property>
       <name>mapreduce.tasktracker.http.threads</name>
-      <value>40</value>
+      <value>20</value>
    </property>
    <property>
       <name>yarn.app.mapreduce.am.resource.cpu-vcores</name>
-      <value>1</value>
+      <value>2</value>
    </property>
    <property>
       <name>mapreduce.input.fileinputformat.split.maxsize</name>
-      <value>268435456</value>
+      <value>402653184</value>
    </property>
    <property>
       <name>mapreduce.task.io.sort.mb</name>
@@ -154,6 +154,6 @@
    </property>
    <property>
       <name>yarn.app.mapreduce.am.command-opts</name>
-      <value>-Xmx1024m</value>
+      <value>-Xmx1200m</value>
    </property>
 </configuration>
