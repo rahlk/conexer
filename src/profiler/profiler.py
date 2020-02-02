@@ -2,6 +2,7 @@ import os
 import subprocess
 import sys
 # import random
+from pdb import set_trace
 import time
 from sysconf import cfg
 from util import util
@@ -130,7 +131,7 @@ class Profiler:
         '''
         success = True
         hibench_home = cfg.hibench_home
-        run_all_script = os.sep.join(['./'+hibench_home, 'bin', 'run_all.sh'])
+        run_all_script = os.sep.join([hibench_home, 'bin', 'run_all.sh'])
         # run_all_script = run_all_script + '> /dev/null'
         # print run_all_script
         start_time = time.time()
@@ -166,11 +167,13 @@ class Profiler:
 
     def run_benchmark_cmd(self, cmd):
         ret = True
+        # set_trace()
         try:
             # Using PIPE here could cause a deadlock problem. When there is too much content in stdout or stderr,
             # the PIPE will be full and process will hang
             cmd = cmd.split(' ')
-            p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=os.devnull)
+            set_trace()
             wait_result = self.wait_timeout(p, self.avg_run_time)
             stdout, stderr = p.communicate()
             return_code = p.returncode
