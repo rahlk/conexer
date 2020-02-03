@@ -5,9 +5,9 @@
 #cp /usr/lib/hadoop/etc/hadoop/yarn-site.xml original_confs
 #cp /usr/lib/hadoop/etc/hadoop/hdfs-site.xml original_confs
 
-rm -rf gen_confs/*
+rm -rf /root/conexer/gen_confs/*
 # first copy default configurations back to Hadoop
-cp hadoop_conf/* /usr/local/hadoop-2.7.4/etc/hadoop
+cp /root/conexer/hadoop_conf/* /usr/local/hadoop-2.7.4/etc/hadoop
 
 # then restart hadoop
 # stop-all.sh
@@ -32,5 +32,5 @@ cp hadoop_conf/* /usr/local/hadoop-2.7.4/etc/hadoop
 #cp hadoop_conf/* /localtmp/hadoop/hadoop-2.7.4/etc/hadoop
 
 # execute exploration at last
-cd src
+cd /root/conexer/src
 python -u main.py 300
